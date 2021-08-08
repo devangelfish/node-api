@@ -2,7 +2,7 @@ const request = require("supertest");
 const should = require("should");
 const app = require("./index");
 
-describe("GET /users는", () => {
+describe("GET /users/:id는", () => {
   describe("성공시", () => {
     it("유저 객체를 담은 배열로 응답한다", (done) => {
       request(app)
@@ -27,7 +27,7 @@ describe("GET /users는", () => {
     });
   });
 });
-describe("GET /user/1는", () => {
+describe("GET /user/:id는", () => {
   describe("성공시", () => {
     it("id가 1인 유저 객체를 반환한다", (done) => {
       request(app)
@@ -47,7 +47,7 @@ describe("GET /user/1는", () => {
     });
   });
 });
-describe("DELETE /user/1는", () => {
+describe("DELETE /user/:id는", () => {
   describe("성공시", () => {
     it("204를 응답한다", (done) => {
       request(app).delete("/user/1").expect(204).end(done);
@@ -90,6 +90,20 @@ describe("POST /user", () => {
     });
     it("name이 중복일 경우 409를 반환한다", (done) => {
       request(app).post("/user").send({ name: "daniel" }).expect(409).end(done);
+    });
+  });
+});
+describe("PUT /user/:id는", () => {
+  const name = "chalie";
+  describe("성공시", () => {
+    it("변경된 name을 응답한다", (done) => {
+      request(app)
+        .put("/user/1")
+        .send({ name })
+        .end((err, res) => {
+          res.body.should.have.property("name", name);
+          done();
+        });
     });
   });
 });

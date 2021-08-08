@@ -66,6 +66,16 @@ app.post("/user", function (req, res) {
   res.status(201).json(user);
 });
 
+app.put("/user/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const name = req.body.name;
+
+  const user = users.find((user) => user.id === id);
+  user.name = name;
+
+  res.json(user);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
