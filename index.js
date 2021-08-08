@@ -68,9 +68,28 @@ app.post("/user", function (req, res) {
 
 app.put("/user/:id", (req, res) => {
   const id = parseInt(req.params.id, 10);
+  if (Number.isNaN(id)) {
+    return res.status(400).end();
+  }
+
   const name = req.body.name;
+  if (!name) {
+    return res.status(400).end();
+  }
 
   const user = users.find((user) => user.id === id);
+  if (!user) {
+    return res.status(404).end();
+  }
+
+  const isDuplicate = users.reduce(
+    (result, user) => (user.name === name ? true : false),
+    false
+  );
+  if (isDuplicate) {
+    return res.status(409).end();
+  }
+
   user.name = name;
 
   res.json(user);
