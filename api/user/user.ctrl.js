@@ -40,8 +40,6 @@ const destroy = (req, res) => {
 const create = (req, res) => {
   const name = req.body.name;
 
-  users.forEach(({ name }) => console.log(name));
-
   if (!name) return res.status(400).end();
 
   const isConfilct = users.some(({ name: userName }) => userName === name);
