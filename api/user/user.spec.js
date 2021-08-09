@@ -2,8 +2,15 @@
 const request = require("supertest");
 const should = require("should");
 const app = require("../../index");
+const models = require("../../models");
 
-describe("GET /user/:id는", () => {
+describe("GET /user는", () => {
+  const users = [{ name: "alice" }, { name: "bek" }, { name: "chris" }];
+  before(() => models.sequelize.sync({ force: true }));
+  before(() => {
+    return models.User.bulkCreate(users);
+  });
+
   describe("성공시", () => {
     it("유저 객체를 담은 배열로 응답한다", (done) => {
       request(app)
@@ -29,6 +36,12 @@ describe("GET /user/:id는", () => {
   });
 });
 describe("GET /user/:id는", () => {
+  const users = [{ name: "alice" }, { name: "bek" }, { name: "chris" }];
+  before(() => models.sequelize.sync({ force: true }));
+  before(() => {
+    return models.User.bulkCreate(users);
+  });
+
   describe("성공시", () => {
     it("id가 1인 유저 객체를 반환한다", (done) => {
       request(app)
@@ -49,6 +62,12 @@ describe("GET /user/:id는", () => {
   });
 });
 describe("DELETE /user/:id는", () => {
+  const users = [{ name: "alice" }, { name: "bek" }, { name: "chris" }];
+  before(() => models.sequelize.sync({ force: true }));
+  before(() => {
+    return models.User.bulkCreate(users);
+  });
+
   describe("성공시", () => {
     it("204를 응답한다", (done) => {
       request(app).delete("/user/1").expect(204).end(done);
@@ -64,6 +83,12 @@ describe("DELETE /user/:id는", () => {
   });
 });
 describe("POST /user", () => {
+  const users = [{ name: "alice" }, { name: "bek" }, { name: "chris" }];
+  before(() => models.sequelize.sync({ force: true }));
+  before(() => {
+    return models.User.bulkCreate(users);
+  });
+
   describe("성공시", () => {
     let name = "daniel";
     let body;
@@ -95,6 +120,12 @@ describe("POST /user", () => {
   });
 });
 describe("PUT /user/:id는", () => {
+  const users = [{ name: "alice" }, { name: "bek" }, { name: "chris" }];
+  before(() => models.sequelize.sync({ force: true }));
+  before(() => {
+    return models.User.bulkCreate(users);
+  });
+
   const name = "chalie";
   describe("성공시", () => {
     it("변경된 name을 응답한다", (done) => {
@@ -118,11 +149,7 @@ describe("PUT /user/:id는", () => {
       request(app).put("/user/999").expect(404).send({ name: "foo" }).end(done);
     });
     it("이름이 중복일 경우 409 응답", (done) => {
-      request(app)
-        .put("/user/1")
-        .send({ name: "daniel" })
-        .expect(409)
-        .end(done);
+      request(app).put("/user/2").send({ name: "chris" }).expect(409).end(done);
     });
   });
 });

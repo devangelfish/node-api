@@ -1,9 +1,4 @@
-// api 로직
-const users = [
-  { id: 1, name: "alice" },
-  { id: 2, name: "bek" },
-  { id: 3, name: "chris" },
-];
+const models = require("../../models");
 
 const index = (req, res) => {
   req.query.limit = req.query.limit || 10;
@@ -11,7 +6,12 @@ const index = (req, res) => {
   if (Number.isNaN(limit)) {
     return res.status(400).end();
   }
-  res.json(users.slice(0, limit));
+
+  models.User.findAll({
+    limit: limit,
+  }).then((users) => {
+    res.json(users);
+  });
 };
 
 const show = (req, res) => {
@@ -19,13 +19,15 @@ const show = (req, res) => {
   if (Number.isNaN(id)) {
     return res.status(400).end();
   }
-  const user = users.find(({ id: userId }) => userId === id);
 
-  if (!user) {
-    return res.status(404).end();
-  }
-
-  res.json(user);
+  models.User.findOne({
+    where: {
+      id,
+    },
+  }).then((user) => {
+    if (!user) return res.status(404).end();
+    res.json(user);
+  });
 };
 
 const destroy = (req, res) => {
@@ -33,8 +35,9 @@ const destroy = (req, res) => {
   if (Number.isNaN(id)) {
     return res.status(400).end();
   }
-  users.splice(id, 1);
-  res.status(204).end();
+  models.User.destroy({ where: { id } }).then(() => {
+    res.status(204).end();
+  });
 };
 
 const create = (req, res) => {
@@ -42,19 +45,16 @@ const create = (req, res) => {
 
   if (!name) return res.status(400).end();
 
-  const isConfilct = users.some(({ name: userName }) => userName === name);
-
-  if (isConfilct) {
-    return res.status(409).end();
-  }
-
-  const id = Date.now();
-  const user = {
-    name,
-    id,
-  };
-  users.push(user);
-  res.status(201).json(user);
+  models.User.create({ name })
+    .then((user) => {
+      res.status(201).json(user);
+    })
+    .catch((err) => {
+      if (err.name === "SequelizeUniqueConstraintError") {
+        return res.status(409).end();
+      }
+      res.status(500).end();
+    });
 };
 
 const update = (req, res) => {
@@ -68,22 +68,22 @@ const update = (req, res) => {
     return res.status(400).end();
   }
 
-  const user = users.find((user) => user.id === id);
-  if (!user) {
-    return res.status(404).end();
-  }
+  models.User.findOne({ where: { id } }).then((user) => {
+    if (!user) return res.status(404).end();
 
-  const isDuplicate = users.reduce(
-    (result, user) => (user.name === name ? true : false),
-    false
-  );
-  if (isDuplicate) {
-    return res.status(409).end();
-  }
-
-  user.name = name;
-
-  res.json(user);
+    user.name = name;
+    user
+      .save()
+      .then((_) => {
+        res.json(user);
+      })
+      .catch((err) => {
+        if (err.name === "SequelizeUniqueConstraintError") {
+          return res.status(409).end();
+        }
+        res.status(500).end();
+      });
+  });
 };
 
 module.exports = {
