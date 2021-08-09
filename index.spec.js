@@ -2,11 +2,11 @@ const request = require("supertest");
 const should = require("should");
 const app = require("./index");
 
-describe("GET /users/:id는", () => {
+describe("GET /user/:id는", () => {
   describe("성공시", () => {
     it("유저 객체를 담은 배열로 응답한다", (done) => {
       request(app)
-        .get("/users")
+        .get("/user")
         .end((err, res) => {
           res.body.should.be.instanceOf(Array);
           done();
@@ -14,7 +14,7 @@ describe("GET /users/:id는", () => {
     });
     it("최대 limit 갯수만큼 응답한다", (done) => {
       request(app)
-        .get("/users?limit=2")
+        .get("/user?limit=2")
         .end((err, res) => {
           res.body.should.have.lengthOf(2);
           done();
@@ -23,7 +23,7 @@ describe("GET /users/:id는", () => {
   });
   describe("실패시", () => {
     it("limit이 숫자형이 아니면 400을 응답한다.", (done) => {
-      request(app).get("/users?limit=two").expect(400).end(done);
+      request(app).get("/user?limit=two").expect(400).end(done);
     });
   });
 });
